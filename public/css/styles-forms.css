@@ -1,0 +1,155 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #fff;
+    color: #333;
+}
+
+.w3-bar a {
+    color: white;
+    font-weight: bold;
+}
+
+.w3-bar {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tabcontent {
+    padding: 20px;
+}
+
+.form-container {
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    background: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-container button:hover {
+    background-color: #004080;
+}
+
+.custom-table {
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table th {
+    background-color: #0056b3;
+    color: white;
+    text-align: left;
+    padding: 10px;
+}
+
+.custom-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.custom-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.custom-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tablink {
+    border: none;
+    outline: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #e9ecef;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.tablink:hover, .tablink.w3-blue {
+    background-color: #0056b3;
+    color: white;
+}
+
+h3 {
+    font-weight: bold;
+    text-align: center;
+}
+
+.action-btn {
+    padding: 5px 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.action-btn.delete {
+    background-color: #d33;
+}
+
+.action-btn.modify {
+    background-color: #0056b3;
+}
+
+/* Estilos específicos para el formulario de búsqueda */
+.form-container-buscador {
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    background: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-container-buscador .input-buscador {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex: 1;
+}
+
+.form-container-buscador button {
+    padding: 10px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.form-container-buscador button[type="reset"] {
+    background-color: #dc3545;
+}

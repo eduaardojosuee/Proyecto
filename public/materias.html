@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Materias</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="./css/styles-forms.css" />
+  </head>
+  <body>
+    <!-- Barra de navegación -->
+    <div class="w3-bar w3-dark-gray">
+      <a href="index.html" class="w3-bar-item w3-button">INICIO</a>
+      <a href="alumnos.html" class="w3-bar-item w3-button">ALUMNOS</a>
+      <a href="calificaciones.html" class="w3-bar-item w3-button">CALIFICACIONES</a>
+      <a href="materias.html" class="w3-bar-item w3-button" style="background-color: gray">MATERIAS</a>
+      <a href="carreras.html" class="w3-bar-item w3-button">CARRERAS</a>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="w3-bar w3-light-grey">
+      <button
+        class="w3-bar-item w3-button tablink w3-blue"
+        onclick="openTab(event, 'Registrar')"
+      >
+        Registrar
+      </button>
+      <button
+        class="w3-bar-item w3-button tablink"
+        onclick="openTab(event, 'Tabla')"
+      >
+        Tabla
+      </button>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div id="Registrar" class="w3-container tabcontent" style="display: block">
+      <h3>Registrar Materia</h3>
+      <div class="form-container">
+        <form id="jsonForm">
+          <label for="nombre">Nombre de la materia</label>
+          <input type="text" name="nombre" required />
+
+          <label for="profesor">Profesor</label>
+          <input type="text" name="profesor" required />
+
+          <button type="submit">Registrar</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="Tabla" class="w3-container tabcontent" style="display: none">
+      <h3>Listado de Materias</h3>
+      <!-- Campo de búsqueda -->
+      <div class="form-container-buscador">
+        <input
+          type="text"
+          id="nombreMateriaBuscar"
+          placeholder="Ingrese nombre de la materia"
+          class="w3-input"
+        />
+        <button type="button" id="buscarMateria">Buscar</button>
+        <button type="reset" id="limpiar" onclick="llenaTablaMaterias()">
+          Limpiar
+        </button>
+      </div>
+
+      <!-- Script para limpiar y rellenar tabla con botón limpiar -->
+      <script>
+        document
+          .getElementById("limpiar")
+          .addEventListener("click", function () {
+            document.getElementById("nombreMateriaBuscar").value = ""; // Borrar el texto en el input
+            llenaTabla();
+          });
+      </script>
+
+      <div class="custom-table">
+        <table class="w3-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Profesor</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tdatos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      function openTab(evt, tabName) {
+        const tabs = document.getElementsByClassName("tabcontent");
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].style.display = "none";
+        }
+        const links = document.getElementsByClassName("tablink");
+        for (let i = 0; i < links.length; i++) {
+          links[i].classList.remove("w3-blue");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.classList.add("w3-blue");
+
+        if (tabName === "Tabla") {
+          llenaTabla();
+        }
+      }
+
+      // Registrar materia
+      document
+        .getElementById("jsonForm")
+        .addEventListener("submit", function (evt) {
+          evt.preventDefault();
+          const form = evt.target;
+          const formData = new FormData(form);
+
+          fetch("/insertMateria", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams(formData),
+          })
+            .then((response) => {
+              if (response.ok) {
+                llenaTabla();
+                Swal.fire(
+                  "¡Registro exitoso!",
+                  "La materia fue registrada correctamente.",
+                  "success"
+                );
+                form.reset();
+              } else {
+                Swal.fire("Error", "No se pudo registrar la materia.", "error");
+                form.reset();
+              }
+            })
+            .catch((err) => console.error("Error:", err));
+        });
+
+      // Mostrar tabla
+      function llenaTabla() {
+        fetch("/getAllMaterias")
+          .then((response) => response.json())
+          .then((data) => {
+            let h = data
+              .map(
+                (d) => `
+                <tr>
+                    <td>${d.id}</td>
+                    <td>${d.nombre}</td>
+                    <td>${d.profesor}</td>
+                    <td>
+                        <button class="action-btn modify" onclick="modificarMateria(${d.id})">Modificar</button>
+                        <button class="action-btn delete" onclick="eliminarMateria(${d.id})">Eliminar</button>
+                    </td>
+                </tr>
+              `
+              )
+              .join("");
+            document.getElementById("tdatos").innerHTML = h;
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // Modificar materia
+      async function modificarMateria(id) {
+        try {
+          const response = await fetch(`/buscarMateria?id=${id}`);
+          if (!response.ok) throw new Error("No se encontró la materia.");
+
+          const materia = await response.json();
+
+          const { value: formValues } = await Swal.fire({
+            title: "Modificar datos de la materia",
+            html: `
+                <label for="nombre" style="display:block; text-align:left;">Nombre:</label>
+                <input id="nombre" class="swal2-input" value="${materia.nombre}">
+
+                <label for="profesor" style="display:block; text-align:left;">Profesor:</label>
+                <input id="profesor" class="swal2-input" value="${materia.profesor}">
+            `,
+            focusConfirm: false,
+            preConfirm: () => {
+              const nombre = document.getElementById("nombre").value.trim();
+              const profesor = document.getElementById("profesor").value.trim();
+
+              if (!nombre || !profesor) {
+                Swal.showValidationMessage(
+                  "Todos los campos son obligatorios."
+                );
+                return null;
+              }
+
+              return { id, nombre, profesor };
+            },
+            showCancelButton: true,
+          });
+
+          if (formValues) {
+            const updateResponse = await fetch("/updateMateria", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formValues),
+            });
+
+            if (updateResponse.ok) {
+              llenaTabla();
+              Swal.fire(
+                "¡Modificado!",
+                "Los datos de la materia fueron actualizados.",
+                "success"
+              );
+            } else {
+              Swal.fire("Error", "No se pudo actualizar la materia.", "error");
+            }
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          Swal.fire(
+            "Error",
+            "No se pudo cargar los datos de la materia.",
+            "error"
+          );
+        }
+      }
+
+      // Eliminar materia
+      function eliminarMateria(id) {
+        Swal.fire({
+          title: "¿Estás seguro?",
+          text: "No podrás revertir esta acción.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/deleteMateria?id=${id}`, { method: "DELETE" })
+              .then((response) => {
+                if (response.ok) {
+                  llenaTabla();
+                  Swal.fire(
+                    "Eliminado",
+                    "El registro ha sido eliminado.",
+                    "success"
+                  );
+                } else {
+                  Swal.fire(
+                    "Error",
+                    "No se pudo eliminar el registro.",
+                    "error"
+                  );
+                }
+              })
+              .catch((err) => console.error("Error:", err));
+          }
+        });
+      }
+
+      // Buscar materia
+      document
+        .getElementById("buscarMateria")
+        .addEventListener("click", function () {
+          const nombreMateria = document
+            .getElementById("nombreMateriaBuscar")
+            .value.trim(); // Obtener el nombre de la materia desde el input
+
+          if (nombreMateria === "") {
+            Swal.fire(
+              "Error",
+              "Por favor, ingrese un nombre de materia para buscar.",
+              "error"
+            );
+            return;
+          }
+
+          fetch(`/buscarMateriaPorNombre?nombreMateria=${nombreMateria}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("No se encontró la materia con ese nombre.");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              // Verificar si se han encontrado materias
+              let h =
+                data.length > 0
+                  ? data
+                      .map(
+                        (materia) => `
+                        <tr>
+                            <td>${materia.id}</td>
+                            <td>${materia.nombre}</td>
+                            <td>${materia.profesor}</td>
+                            <td>
+                                <button class="action-btn modify" onclick="modificarMateria('${materia.id}')">Modificar</button>
+                                <button class="action-btn delete" onclick="eliminarMateria('${materia.id}')">Eliminar</button>
+                            </td>
+                        </tr>
+                    `
+                      )
+                      .join("")
+                  : '<tr><td colspan="4">No se encontró ninguna materia con ese nombre.</td></tr>';
+
+              document.getElementById("tdatos").innerHTML = h;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              Swal.fire(
+                "Error",
+                "No se encontró la materia con ese nombre.",
+                "error"
+              );
+            });
+        });
+    </script>
+  </body>
+</html>
